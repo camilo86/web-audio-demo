@@ -6,8 +6,9 @@ const audioElement = document.querySelector("audio");
 const track = audioContext.createMediaElementSource(audioElement);
 
 const gainNode = audioContext.createGain();
+const pannerNode = audioContext.createStereoPanner();
 
-track.connect(gainNode).connect(audioContext.destination);
+track.connect(gainNode).connect(pannerNode).connect(audioContext.destination);
 
 // Handle Play/Pause button
 const playPauseButtonElement = document.getElementById("play-pause-btn");
@@ -33,10 +34,24 @@ playPauseButtonElement.addEventListener(
 // Handle volume slider
 const volumeSliderElement = document.getElementById("volume-slider");
 
-volumeSliderElement.addEventListener("input", function () {
-  gainNode.gain.value = this.value;
-}),
-  false;
+volumeSliderElement.addEventListener(
+  "input",
+  function () {
+    gainNode.gain.value = this.value;
+  },
+  false
+);
+
+// Handle panner slider
+const pannerSliderElement = document.getElementById("panner-slider");
+
+pannerSliderElement.addEventListener(
+  "input",
+  function () {
+    pannerNode.pan.value = this.value;
+  },
+  false
+);
 
 // Handle end of sound file
 audioElement.addEventListener(
