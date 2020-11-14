@@ -5,7 +5,9 @@ const audioContext = new AudioContext();
 const audioElement = document.querySelector("audio");
 const track = audioContext.createMediaElementSource(audioElement);
 
-track.connect(audioContext.destination);
+const gainNode = audioContext.createGain();
+
+track.connect(gainNode).connect(audioContext.destination);
 
 // Handle Play/Pause button
 const playPauseButtonElement = document.getElementById("play-pause-btn");
@@ -28,7 +30,19 @@ playPauseButtonElement.addEventListener(
   false
 );
 
+// Handle volume slider
+const volumeSliderElement = document.getElementById("volume-slider");
+
+volumeSliderElement.addEventListener("input", function () {
+  gainNode.gain.value = this.value;
+}),
+  false;
+
 // Handle end of sound file
-audioElement.addEventListener("ended", function () {
-  playPauseButtonElement.dataset.playing = "false";
-});
+audioElement.addEventListener(
+  "ended",
+  function () {
+    playPauseButtonElement.dataset.playing = "false";
+  },
+  false
+);
