@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Audio API Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+      integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <a class="navbar-brand" href="/">Web Audio API Demo</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Basic audio functions</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/record-microphone.html"
+              >Record microphone <span class="sr-only">(current)</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/changing-signal-phase.html"
+              >Changing signal phase</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Record microphone</h1>
+        <p>
+          Recording media devices (like microphone) is actually part of the
+          <code>MediaStream Recording API</code>, so not really related to the
+          <code>Web Audio API</code> topic of this demo site, but it is still
+          very handy when dealing with sound!
+        </p>
+        <p>
+          In order to actually record audio, you must first ask for permission
+          to use the audio media device. But before you can even do that, you
+          gotta makesure that the browser supports media device. A quick if
+          statement should work here
+          <code
+            >if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+            { ... }</code
+          >
+        </p>
+        <p>
+          If media devices is supported, you can then go ahead and ask for
+          permission by calling
+          <code>navigator.mediaDevices.getUserMedia({ audio: true })</code>.
+          This returns a promise containing a MediaStream. Using this stream, we
+          can create a MediaRecorder instance
+          <code>const mediaRecorder = new MediaRecorder(stream);</code>. The
+          mediaRecorder instance is our API to start/stop recording as well as
+          get the audio data itself.
+        </p>
+        <p>
+          Next thing we want to do is to start/stop the microphone recording. In
+          this demo, a button is used to manage this; within the button click
+          event listener, the mediaRecorder <code>start()</code> and
+          <code>stop()</code> is called depending on the state of the app.
+        </p>
+
+        <p>
+          As the the mediaRecorder records the microphone, it calls
+          <code>ondataavailable</code> function with a 'chunk' of the sound
+          recorded. Our job is to store these chunks so that when we are done
+          recording the microphone, we can turn this list of chunks into an
+          audio file. To do this, we can set the trigger of ondataavailable to
+          add the chunk to a list chunks:
+          <code
+            >mediaRecorder.ondataavailable = function(e) { chunks.push(e.data);
+            }</code
+          >
+        </p>
+        <p>
+          The last part of the puzzle is to turn this list of chunks into
+          something meaningful when we are done recording. mediaRecorder
+          triggers <code>onstop</code> when it is done recording. Similarly to
+          the <code>ondataavailable</code> implementation, we can define our
+          function to create a blob using the list of chunks. This blob is now
+          our full recording.
+          <code>
+            const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus"
+            });</code
+          >
+        </p>
+        <p>
+          For demo purposes, I added a <code>&#60;audio&#62;</code> tag to the
+          DOM and set its <code>src</code> attribute to the URL of the audio
+          blob. You can generate a URL of the audio blob like this
+          <code>window.URL.createObjectURL(blob);</code>
+        </p>
+      </div>
+    </div>
+
+    <div class="container">
+      <button type="button" class="btn btn-primary btn-block" id="record-btn">
+        Start Recording
+      </button>
+      <span id="audio-container"></span>
+    </div>
+
+    <script src="scripts/record-microphone.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
